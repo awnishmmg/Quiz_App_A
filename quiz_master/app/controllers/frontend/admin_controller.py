@@ -366,7 +366,7 @@ def view_users_scores():
     results = model_get_all_user_results()  # Fetch all user quiz results
     return render_template('admin/result/result_summary.html', results=results)
       
-# ---------------------------------- Question Controller Methods --------------------------------------------
+# ----------------------> Question Controller Methods <-----------------------
 
 def question_create(methods):
     quizzes = model_quiz_getAll()
