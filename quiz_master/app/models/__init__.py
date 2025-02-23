@@ -5,7 +5,7 @@ bcrypt = Bcrypt()
 
 # Database connection
 def getConnection():
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect('database.db',check_same_thread=False)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -484,7 +484,7 @@ def model_get_quiz_count():
 
     return quiz_count
 
-# ---------------------------------- Question Model Methods --------------------------------------------
+# ------------- Question Model Methods --------------------------------------------
 
 def model_question_create(question):
     conn = getConnection()
@@ -572,3 +572,141 @@ def model_get_question_count():
     count = cursor.fetchone()[0]  # Fetch the count value
     conn.close()
     return count
+
+def model_count_no_of_question_in_quiz(quiz_id):
+    print(quiz_id)
+    conn = getConnection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT COUNT(*) as total_questions 
+        FROM questions 
+        where quiz_id = ?
+    ''',(quiz_id,))
+    result = cursor.fetchone()[0]
+    print(result)
+    conn.close()
+    return result
+
+def model_get_questions_by_quiz_id(quiz_id):
+    conn = getConnection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT id, question, option_1, option_2, option_3, option_4, correct_option 
+        FROM questions 
+        WHERE quiz_id = ?
+    """, (quiz_id,))
+    
+    questions = cursor.fetchall()
+    conn.close()
+    return questions
+
+def model_get_correct_answers(quiz_id):
+    """
+    Fetch correct answers for the given quiz.
+    Returns a dictionary {question_id: correct_option_number}
+    """
+    conn = getConnection()
+    cursor = conn.cursor()
+    
+    query = """
+        SELECT id, correct_option FROM questions WHERE quiz_id = ?
+    """
+    cursor.execute(query, (quiz_id,))
+    correct_answers = {row[0]: row[1] for row in cursor.fetchall()}
+    conn.close()
+    return correct_answers
+
+
+def model_save_question_attempts(attempts):
+    """
+    Stores each user's attempt in the scores table.
+    """
+    conn = getConnection()
+    cursor = conn.cursor()
+
+    query = """
+        INSERT INTO scores (quiz_id, question_id, user_id, attempted_option, scored_mark)
+        VALUES (?, ?, ?, ?, ?)
+    """
+    cursor.executemany(query, attempts)  # Bulk insert all attempts
+    try:
+        conn.commit()
+    except Exception as e:
+        print(f'Exception Error {str(e)}')
+        return False
+    finally:
+        conn.close()
+        return True
+
+def model_calculate_total_score(user_id, quiz_id):
+    """
+    Calculates the total score for a given quiz.
+    """
+    conn = getConnection()
+    cursor = conn.cursor()
+
+    query = """
+        SELECT COUNT(*) FROM scores
+        WHERE user_id = ? AND quiz_id = ? AND scored_mark = '1'
+    """
+    cursor.execute(query, (user_id, quiz_id))
+    score = cursor.fetchone()[0]  # Get the count of correct answers
+
+    query_total = """
+        SELECT COUNT(*) FROM scores
+        WHERE user_id = ? AND quiz_id = ?
+    """
+    cursor.execute(query_total, (user_id, quiz_id))
+    total_questions = cursor.fetchone()[0]
+
+    conn.close()
+
+    return score, total_questions
+
+
+def model_get_user_results(user_id):
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        SELECT q.id as quiz_id, q.name as quiz_name, 
+               COUNT(s.question_id) as total_questions, 
+               SUM(CASE WHEN s.scored_mark = '1' THEN 1 ELSE 0 END) as scored_mark
+        FROM scores s
+        JOIN quiz q ON s.quiz_id = q.id
+        WHERE s.user_id = ?
+        GROUP BY s.quiz_id
+    ''', (user_id,))
+    
+    results = [
+        {"quiz_id": row[0], "quiz_name": row[1], "total_questions": row[2], "scored_mark": row[3]}
+        for row in cursor.fetchall()
+    ]
+    
+    conn.close()
+    return results
+
+
+def model_get_all_user_results():
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        SELECT u.fullname as user_name, q.name as quiz_name, 
+               COUNT(s.question_id) as total_questions, 
+               SUM(CASE WHEN s.scored_mark = '1' THEN 1 ELSE 0 END) as scored_mark
+        FROM scores s
+        JOIN quiz q ON s.quiz_id = q.id
+        JOIN users u ON s.user_id = u.id
+        GROUP BY s.user_id, s.quiz_id
+        ORDER BY u.fullname ASC
+    ''')
+
+    results = [
+        {"user_name": row[0], "quiz_name": row[1], "total_questions": row[2], "scored_mark": row[3]}
+        for row in cursor.fetchall()
+    ]
+
+    conn.close()
+    return results

@@ -30,13 +30,18 @@ def login(methods):
         if user:
             stored_password = user["password"]  # Fetch stored hashed password
             if bcrypt.check_password_hash(stored_password, password):
-                session['admin_logged_in'] = True
-                session['admin_email'] = email
-                flash("✅ Login successful!", "success")
                 if isAdmin:
+                    session['admin_logged_in'] = True
+                    session['admin_email'] = email
+                    session['admin_id'] = user['id']
+                    flash("✅ Login successful!", "success")
                     return redirect(url_for('admin.admin_dashboard'))
                 else:
-                     return redirect(url_for('user.user_dashboard'))
+                    session['user_logged_in'] = True
+                    session['user_id'] = user['id']
+                    session['user_email'] = email
+                    flash("✅ Login successful!", "success")
+                    return redirect(url_for('user.user_dashboard'))
             else:
                 flash("❌ Incorrect password!", "danger")
         else:

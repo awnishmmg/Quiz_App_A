@@ -5,7 +5,7 @@ from app.models import create_user,get_users_list,get_user_details,update_user_d
 
 from app.models import model_subject_add,model_get_subjects,model_get_subject_count,model_delete_subject,model_subject_updated,model_get_subjects_details
 
-from app.models import modal_chapter_create,modal_chapter_getAll,model_delete_chapter,model_get_chapter_details,model_get_chapter_count,model_chapter_updated,model_quiz_create,model_get_quiz_details,model_get_quiz_count,model_quiz_getAll,model_delete_quiz,model_quiz_update
+from app.models import modal_chapter_create,modal_chapter_getAll,model_delete_chapter,model_get_chapter_details,model_get_chapter_count,model_chapter_updated,model_quiz_create,model_get_quiz_details,model_get_quiz_count,model_quiz_getAll,model_delete_quiz,model_quiz_update,model_get_all_user_results
 
 from app.models import model_question_create,model_question_delete,model_question_getAll,model_get_question_details,model_get_question_count,model_question_update
 
@@ -25,6 +25,7 @@ def dashboard_page():
 def logout():
     session.pop('admin_logged_in', None)
     session.pop('admin_email', None)
+    session.pop('admin_id',None)
     flash("👋 Logged out successfully!", "info")
     return redirect(url_for('index.login'))
 
@@ -361,6 +362,10 @@ def quiz_delete(quiz_id):
             flash('Quiz Not Deleted Succssfully','danger')
             return redirect(url_for('admin.admin_quiz_show'))
       
+def view_users_scores():
+    results = model_get_all_user_results()  # Fetch all user quiz results
+    return render_template('admin/result/result_summary.html', results=results)
+      
 # ---------------------------------- Question Controller Methods --------------------------------------------
 
 def question_create(methods):
@@ -457,6 +462,5 @@ def question_delete(question_id):
         flash('Question Deleted Successfully', 'success')
     else:
         flash('Cannot delete the Question', 'danger')
-
     return redirect(url_for('admin.admin_question_show'))
 

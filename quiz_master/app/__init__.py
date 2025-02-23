@@ -1,8 +1,14 @@
 from flask import Flask
+from app.models import model_count_no_of_question_in_quiz
  
 def create_app():
     app = Flask(__name__)
     app.secret_key  = 'Your_Secret_key'
+
+    #Import the Globals Utility.
+    app.jinja_env.globals['model_helper'] = {}
+    app.jinja_env.globals['model_helper']['get_questions_count'] = model_count_no_of_question_in_quiz
+
 
     #Set Application Context Manager
     with app.app_context():
@@ -23,7 +29,7 @@ def create_app():
 
 
     #Api Routes Blueprint
-    from app.routes.api import users_bp
+    from app.routes.web import users_bp
     app.register_blueprint(users_bp,url_prefix='/user')
 
     #admin Routes Blueprint

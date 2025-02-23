@@ -28,20 +28,28 @@
                 <ul class="nav flex-column">
 
                     <li class="nav-item"><a class="nav-link text-white" 
-                        href="{{url_for('admin.admin_dashboard')}}">Dashboard</a></li>
+                        href="{{url_for('user.user_dashboard')}}">Dashboard</a></li>
 
-                    <li class="nav-item"><a class="nav-link text-white" href="{{url_for('admin.admin_quiz_show')}}">Quizzes</a></li>
+                    <li class="nav-item"><a class="nav-link text-white" href="{{url_for('user.user_myquizes_list')}}">Quizzes</a></li>
 
-                    <li class="nav-item"><a class="nav-link text-white" href="{{url_for('admin.admin_question_show')}}">Results</a></li>
+                    <li class="nav-item"><a class="nav-link text-white" href="{{url_for('user.user_all_result',user_id=session['user_id'])}}">Results</a></li>
                     
-                    <li class="nav-item"><a class="nav-link text-danger" href="{{url_for('admin.admin_logout')}}">Logout</a></li>
+                    <li class="nav-item"><a class="nav-link text-danger" href="{{url_for('user.user_logout')}}">Logout</a></li>
                 </ul>
             </nav>
             
             <!-- Main Content -->
             <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 <header class="py-3 border-bottom">
-                    <h1>{% block header %}Admin Dashboard{% endblock %}</h1>
+                    <h1>{% block header %}User Dashboard{% endblock %}</h1>
+                    <p> <b> User ID: <i><a href="mailto:{% if 'user_email' in session %}{{ session['user_email'] }}{% endif %}">
+                        {% if 'user_email' in session %}
+                            {{ session['user_email'] }}
+                        {% endif %}
+                        </a>
+                        </i>
+                        </b>
+                </p>
                 </header>
                 <main class="py-4">
                     {% block content %}{% endblock %}

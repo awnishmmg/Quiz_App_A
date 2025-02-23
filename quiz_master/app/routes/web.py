@@ -34,6 +34,7 @@ def admin_dashboard():
      return admin_controller.dashboard_page() 
 
 @admin_bp.route('/logout')
+@auth.login_required
 def admin_logout():
     return admin_controller.logout()
 
@@ -118,7 +119,12 @@ def admin_chapter_edit(chapter_id):
 def admin_chapter_delete(chapter_id):
      return admin_controller.chapter_delete(chapter_id)
 
-#------------------------------------------Routes of the Quizes---------------------------------------
+@admin_bp.route('/show/results',methods=['GET'])
+@auth.login_required
+def admin_view_scores():
+     return admin_controller.view_users_scores()
+
+#-----------------------Routes of the Quizes------------------------
 
 @admin_bp.route('/quiz/add',methods=['GET','POST'])
 @auth.login_required
@@ -179,8 +185,49 @@ def admin_question_edit(question_id):
 def admin_question_delete(question_id):
     return admin_controller.question_delete(question_id)
 
-#-------------------------------user dashboard----------------------------------------------------------
+#----------------------------------user dashboard----------------------------
 @users_bp.route('/')
 @users_bp.route('/dashboard')
+@auth.user_login_required
 def user_dashboard():
      return user_controller.dashboard_page() 
+
+
+@users_bp.route('/mock/quizes')
+@auth.user_login_required
+def user_myquizes_list():
+     return user_controller.quizes_list()
+
+@users_bp.route('/mock/quiz/info/<int:quiz_id>')
+@auth.user_login_required
+def user_quiz_info(quiz_id):
+    pass 
+
+@users_bp.route('/mock/quiz/attempt/<int:quiz_id>')
+@auth.user_login_required
+def user_start_quiz(quiz_id):
+    return user_controller.quiz_attempt(quiz_id)    
+
+@users_bp.route('/mock/quiz/submit/<int:quiz_id>',methods=['POST'])
+@auth.user_login_required
+def user_submit_quiz(quiz_id):
+     return user_controller.user_submit_quiz(quiz_id)
+
+
+@users_bp.route('/quiz/result/<int:quiz_id>')
+@auth.user_login_required
+def user_quiz_result(quiz_id):
+    return user_controller.user_quiz_result(quiz_id)
+
+@users_bp.route('/mock/quiz/result/<int:user_id>')
+@auth.user_login_required
+def user_all_result(user_id):
+    return user_controller.user_my_result(user_id)
+    
+    
+@users_bp.route('/user/logout')
+@auth.user_login_required
+def user_logout():
+    return user_controller.logout()
+
+
