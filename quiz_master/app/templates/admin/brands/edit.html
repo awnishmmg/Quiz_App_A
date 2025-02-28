@@ -1,0 +1,46 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Edit Brand - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-white">
+                    <h4 class="text-center mb-0">Edit Brand</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Start of Flash Messages -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    <!-- End of Flash Messages -->
+                    <form action="{{ url_for('admin.admin_brand_edit', brand_id=brand.id) }}" method="POST">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Brand Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required value="{{ brand.name }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description">{{ brand.description }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="1" {% if brand.status == 1 %}selected{% endif %}>Active</option>
+                                <option value="0" {% if brand.status == 0 %}selected{% endif %}>Inactive</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-warning w-100">Update Brand</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

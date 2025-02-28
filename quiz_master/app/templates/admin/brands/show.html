@@ -1,0 +1,87 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Brands - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2>Brands List</h2>
+        <a href="{{ url_for('admin.admin_create_brand_form') }}" class="btn btn-success">+ Add New Brand</a>
+    </div>
+
+    <!-- Start of Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <!-- End of Flash Messages -->
+
+    <!-- Filter & Search -->
+    <div class="row my-3">
+        <div class="col-md-6">
+            <select id="statusFilter" class="form-select" onchange="filterBrands()">
+                <option value="">All Status</option>
+                <option value="1">Active</option>
+                <option value="0">Inactive</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <input type="text" id="searchBox" class="form-control" placeholder="Search brands..." onkeyup="searchBrands()">
+        </div>
+    </div>
+
+    <!-- Brands Table -->
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Brand Name</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for brand in brands %}
+            <tr>
+                <td>{{ brand.id }}</td>
+                <td>{{ brand.name }}</td>
+                <td>{{ brand.description }}</td>
+                <td data-status="{{ brand.status }}">
+                    {{ "Active" if brand.status == 1 else "Inactive" }}
+                </td>
+                <td>
+                    <a href="{{ url_for('admin.admin_brand_edit', brand_id=brand.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="{{ url_for('admin.admin_brand_delete', brand_id=brand.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?');">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function searchBrands() {
+        let input = document.getElementById("searchBox").value.toLowerCase();
+        let rows = document.querySelectorAll("tbody tr");
+        rows.forEach(row => {
+            let name = row.cells[1].textContent.toLowerCase();
+            row.style.display = name.includes(input) ? "" : "none";
+        });
+    }
+
+    function filterBrands() {
+        let selectedStatus = document.getElementById("statusFilter").value;
+        let rows = document.querySelectorAll("tbody tr");
+
+        rows.forEach(row => {
+            let status = row.cells[3].getAttribute("data-status");
+            row.style.display = (selectedStatus === "" || status === selectedStatus) ? "" : "none";
+        });
+    }
+</script>
+
+{% endblock %}

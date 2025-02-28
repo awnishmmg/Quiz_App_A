@@ -9,6 +9,9 @@ from app.models import modal_chapter_create,modal_chapter_getAll,model_delete_ch
 
 from app.models import model_question_create,model_question_delete,model_question_getAll,model_get_question_details,model_get_question_count,model_question_update
 
+
+from app.models import model_brands_create,model_get_brand_list,model_brand_delete,model_update_brand_details,model_get_brand_details
+
 bcrypt = Bcrypt()
 
 #---------------------------------------Dashboard Methods-------------------------
@@ -464,3 +467,78 @@ def question_delete(question_id):
         flash('Cannot delete the Question', 'danger')
     return redirect(url_for('admin.admin_question_show'))
 
+
+
+# ------brands----------
+def brand_add(methods):
+        if methods == 'POST':
+            brand_name = request.form.get('name','').strip()
+            status = request.form.get('status','').strip()
+            description = request.form.get('description','').strip()
+
+            #Validation for the Form
+            # 1️⃣ Check if any field is empty
+            if not brand_name or not status or not description :
+                  flash("All fields are required!", "danger")
+                  return render_template('admin/user/add.html')
+
+            brands = {
+                  'name':brand_name,
+                  'status': status,
+                  'description':description
+            }
+            
+            inserted = model_brands_create(brands)
+            if inserted == True:
+                     flash('brand created successfully','success')
+                     return redirect(url_for('admin.admin_brand_listing'))
+            else:     
+                     flash('cannot created the Record','danger')
+                     return redirect(url_for('admin.admin_brand_listing')) 
+              
+              
+        else:    
+                return render_template('admin/brands/add.html')
+        
+def brand_listing():
+      brands = model_get_brand_list()
+      return render_template('admin/brands/show.html',brands=brands)
+
+def brand_delete(brand_id):
+            if model_brand_delete(brand_id) == True:
+                   flash('Brand Deleted Successfully','success')
+                   return redirect(url_for('admin.admin_brand_listing'))  
+            else:
+                   flash('Brand Not Deleted Succssfully','danger')
+                   return redirect(url_for('admin.admin_brand_listing'))
+            
+def brand_edit(methods,brand_id):
+      if methods == 'POST':
+            print(request.form.to_dict())
+            brand_name = request.form.get('name','').strip()
+            status = request.form.get('status','').strip()
+            description = request.form.get('description','').strip()
+            brand = model_get_brand_details(brand_id)
+            print(brand)
+            #Validation for the Form
+            # 1️⃣ Check if any field is empty
+            if not brand_name or not status or not description:
+                  flash("All fields are required!", "danger")
+                  return render_template('admin/brands/edit.html',brand=brand)
+
+            brands = {
+                     'name':brand_name,
+                     'status':status,
+                     'description':description
+              }
+            
+            updated = model_update_brand_details(brand_id=brand_id,brands=brands)
+            if updated == True:
+                     flash('brand updated successfully','success')
+                     return redirect(url_for('admin.admin_brand_listing'))
+            else:     
+                     flash('cannot updated the Record','danger')
+                     return redirect(url_for('admin.admin_brand_listing')) 
+      else: 
+             brand = model_get_brand_details(brand_id)
+             return render_template('admin/brands/edit.html',brand=brand)

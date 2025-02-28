@@ -34,17 +34,10 @@
                         href="{{url_for('admin.admin_dashboard')}}">Dashboard</a></li>
 
                     <li class="nav-item border_bottom"><a class="nav-link text-white" href="{{url_for('admin.admin_create_user_listing')}}">Manage Users</a></li>
+                    <li class="nav-item border_bottom"><a class="nav-link text-white" href="{{url_for('admin.admin_brand_listing')}}">Manage Brands</a></li> 
+                    <li class="nav-item border_bottom"><a class="nav-link text-white" href="{{url_for('admin.admin_brand_listing')}}">Manage Mcats</a></li>    
+                    <li class="nav-item border_bottom"><a class="nav-link text-white" href="{{url_for('admin.admin_brand_listing')}}">Manage Products</a></li> 
 
-                    <li class="nav-item border_bottom"><a class="nav-link text-white" href="{{url_for('admin.admin_subject_show')}}">Manage Subjects</a></li>
-
-                    <li class="nav-item border_bottom"><a class="nav-link text-white" href="{{url_for('admin.admin_chapter_show')}}">Manage Chapters</a></li>
-
-                    <li class="nav-item border_bottom"><a class="nav-link text-white" href="{{url_for('admin.admin_quiz_show')}}">Manage Quizzes</a></li>
-
-                    <li class="nav-item border_bottom"><a class="nav-link text-white" href="{{url_for('admin.admin_question_show')}}">Manage Questions/Answers</a></li>
-
-                    <li class="nav-item border_bottom"><a class="nav-link text-white" href="{{url_for('admin.admin_view_scores')}}">View Score/Result</a></li>
-                    
                     <li class="nav-item border_bottom">
                         <a class="nav-link text-danger" href="{{url_for('admin.admin_logout')}}">Logout <br/>
                             {% if 'admin_email' in session %}

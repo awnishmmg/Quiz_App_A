@@ -36,69 +36,103 @@ def initialise_db():
             )
         ''')
 
-        # create the Subject 
+        #create product
         conn.execute('''
-                CREATE TABLE IF NOT EXISTS subject (
+                CREATE TABLE IF NOT EXISTS product (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
-                description TEXT NOT NULL,
-                difficulty_level TEXT NOT NULL CHECK(difficulty_level IN ('easy', 'medium', 'hard')))
-            ''')
-        # create the chapter
-        conn.execute('''
-            CREATE TABLE IF NOT EXISTS chapter(
-                id INTEGER primary key autoincrement,
-                name text not null,
-                description text not null,
-                subject_id integer null
+                model TEXT NOT NULL,
+                brand_id INTEGER NOT NULL
                 )
-        ''')
+            ''')
+
+        #create Mcat
+        conn.execute('''
+                CREATE TABLE IF NOT EXISTS mcats (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                brand TEXT NOT NULL,
+                status INTEGER NOT NULL,
+                parent_id INTEGER NOT NULL,
+                description TEXT NULLABLE
+                )
+            ''')
+        
+        #create Brand
+        conn.execute('''
+                CREATE TABLE IF NOT EXISTS brand (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                status INTEGER NOT NULL,
+                description TEXT NULLABLE
+                     )
+            ''')
+        
+
+
+        # # create the Subject 
+        # conn.execute('''
+        #         CREATE TABLE IF NOT EXISTS subject (
+        #         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        #         name TEXT NOT NULL,
+        #         description TEXT NOT NULL,
+        #         difficulty_level TEXT NOT NULL CHECK(difficulty_level IN ('easy', 'medium', 'hard')))
+        #     ''')
+        # # create the chapter
+        # conn.execute('''
+        #     CREATE TABLE IF NOT EXISTS chapter(
+        #         id INTEGER primary key autoincrement,
+        #         name text not null,
+        #         description text not null,
+        #         subject_id integer null
+        #         )
+        # ''')
 
 
        
 
-        # create the Quiz
-        conn.execute('''
-            CREATE TABLE IF NOT EXISTS quiz(
-                id INTEGER primary key autoincrement,
-                name text not null,
-                description text not null,
-                chapter_id integer null,
-                start_date text null,
-                end_date text null,
-                status text null,
-                time_duration text null,
-                remarks text null     
-                )
-        ''')
+        # # create the Quiz
+        # conn.execute('''
+        #     CREATE TABLE IF NOT EXISTS quiz(
+        #         id INTEGER primary key autoincrement,
+        #         name text not null,
+        #         description text not null,
+        #         chapter_id integer null,
+        #         start_date text null,
+        #         end_date text null,
+        #         status text null,
+        #         time_duration text null,
+        #         remarks text null     
+        #         )
+        # ''')
 
-        #create the questions
-        conn.execute('''
-            CREATE TABLE IF NOT EXISTS questions(
-                id INTEGER primary key autoincrement,
-                quiz_id integer not null,
-                question text not null,
-                option_1 text null,
-                option_2 text null,
-                option_3 text null,
-                option_4 text null,
-                correct_option integer not null,
-                correct_mark integer not null DEFAULT '1',
-                wrong_mark integer not null default '0'     
-                )
-        ''')
+        # #create the questions
+        # conn.execute('''
+        #     CREATE TABLE IF NOT EXISTS questions(
+        #         id INTEGER primary key autoincrement,
+        #         quiz_id integer not null,
+        #         question text not null,
+        #         option_1 text null,
+        #         option_2 text null,
+        #         option_3 text null,
+        #         option_4 text null,
+        #         correct_option integer not null,
+        #         correct_mark integer not null DEFAULT '1',
+        #         wrong_mark integer not null default '0'     
+        #         )
+        # ''')
 
-        #create the scores 
-        conn.execute('''
-            CREATE TABLE IF NOT EXISTS scores(
-                id INTEGER primary key autoincrement,
-                quiz_id integer not null,
-                question_id integer not null,
-                user_id integer not null,
-                attempted_option integer null,
-                scored_mark text not null default '0'     
-                )
-        ''')
+        # #create the scores 
+        # conn.execute('''
+        #     CREATE TABLE IF NOT EXISTS scores(
+        #         id INTEGER primary key autoincrement,
+        #         quiz_id integer not null,
+        #         question_id integer not null,
+        #         user_id integer not null,
+        #         attempted_option integer null,
+        #         scored_mark text not null default '0'     
+        #         )
+        # ''')
 
 def create_admin(admin_email,admin_password):
     """ Check if admin exists, if not create one """
@@ -710,3 +744,75 @@ def model_get_all_user_results():
 
     conn.close()
     return results
+
+
+def model_brands_create(brands):
+    conn=getConnection()
+    cursor=conn.cursor()
+
+    cursor.execute('''
+                   INSERT INTO brand (name,status, description) values(?,?,?)
+                   ''',(brands['name'],brands['status'],brands['description']))
+    
+    try:
+        conn.commit()
+    except Exception as e:
+        print(f'Exception Error {str(e)}')
+        return False
+    finally:
+        conn.close()
+        return True
+    
+def model_get_brand_list():
+    conn=getConnection()
+    cursor=conn.cursor()
+
+    cursor.execute('''
+        select * from brand
+    ''')
+
+    brands=cursor.fetchall()
+    return brands
+
+def model_brand_delete(brand_id):
+    conn=getConnection()
+    cursor=conn.cursor()
+
+    try:
+        #connection cursor
+        cursor.execute("Delete from brand where id=?",(brand_id,))
+        conn.commit()
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return False
+    finally:
+        conn.close()
+        return True
+    
+def model_get_brand_details(brand_id):
+    conn = getConnection()
+    cursor = conn.cursor()
+    cursor.execute('''
+                   select * from brand where id=?
+                   ''',(brand_id,))
+    
+    brand = cursor.fetchone()
+    return brand
+
+
+def model_update_brand_details(brand_id,brands):
+    conn=getConnection()
+    cursor=conn.cursor()
+
+    cursor.execute('''
+                   update brand set name=?,status=?, description=? where id=?
+                   ''',(brands['name'],brands['status'],brands['description'],brand_id))
+    
+    try:
+        conn.commit()
+    except Exception as e:
+        print(f'Exception Error {str(e)}')
+        return False
+    finally:
+        conn.close()
+        return True

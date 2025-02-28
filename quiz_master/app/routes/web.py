@@ -231,3 +231,32 @@ def user_logout():
     return user_controller.logout()
 
 
+
+
+# --------------------------------Brand routes --------------------------------
+@admin_bp.route('/brands/create/form',methods=['GET','POST'])
+@auth.login_required
+def admin_create_brand_form():
+     if request.method == 'POST':
+         return admin_controller.brand_add(methods='POST')     
+     else:
+          return admin_controller.brand_add(methods='GET')
+     
+@admin_bp.route('/brand/show',methods=['GET'])
+@auth.login_required
+def admin_brand_listing():
+          return admin_controller.brand_listing()
+
+@admin_bp.route('/brand/edit/<int:brand_id>',methods=['GET','POST'])
+@auth.login_required
+def admin_brand_edit(brand_id):
+     if request.method == 'POST':
+          return admin_controller.brand_edit(methods='POST',brand_id=brand_id)
+     else:
+          return admin_controller.brand_edit(methods='GET',brand_id=brand_id)
+
+
+@admin_bp.route('/brand/delete/<int:brand_id>',methods=['GET'])
+@auth.login_required
+def admin_brand_delete(brand_id):
+     return admin_controller.brand_delete(brand_id)
