@@ -12,17 +12,31 @@ from app.models import model_question_create,model_question_delete,model_questio
 
 from app.models import model_brands_create,model_get_brand_list,model_brand_delete,model_update_brand_details,model_get_brand_details
 
+from app.models import model_mcat_create,model_get_mcat_list,model_get_mcat_details,model_update_mcat_details
+
+from app.models import model_market_create,model_market_delete,model_get_market_details,model_get_market_list,model_update_market_details
+
+from app.models import model_product_create,model_product_delete,model_get_product_details,model_get_product_list,model_update_product_details
+
+
+from app.models import model_brand_count,model_mcat_count,model_product_count,model_market_vertical_count
+
 bcrypt = Bcrypt()
 
 #---------------------------------------Dashboard Methods-------------------------
 
 def dashboard_page():
-        user_count = getuser_count()
-        subject_count = model_get_subject_count()
-        chapter_count = model_get_chapter_count()
-        quiz_count = model_get_quiz_count()
-        question_count = model_get_question_count()
-        return render_template('admin/dashboard.html',user_count=user_count,subject_count=subject_count,chapter_count = chapter_count,quiz_count=quiz_count,question_count=question_count)
+      #   user_count = getuser_count()
+      #   subject_count = model_get_subject_count()
+      #   chapter_count = model_get_chapter_count()
+      #   quiz_count = model_get_quiz_count()
+      #   question_count = model_get_question_count()
+      #   return render_template('admin/dashboard.html',user_count=user_count,subject_count=subject_count,chapter_count = chapter_count,quiz_count=quiz_count,question_count=question_count)
+      prod_count=model_product_count()
+      mcat_count=model_mcat_count()
+      brand_count=model_brand_count()
+      vertical_count=model_market_vertical_count()
+      return render_template('admin/dashboard.html',prod_count=prod_count,mcat_count=mcat_count,brand_count = brand_count,vertical_count=vertical_count)
 
 #---------------------------------------Log Out  -------------------------
 def logout():
@@ -469,12 +483,13 @@ def question_delete(question_id):
 
 
 
-# ------brands----------
+# ------brands------------------------------------------------------------------------
 def brand_add(methods):
         if methods == 'POST':
             brand_name = request.form.get('name','').strip()
             status = request.form.get('status','').strip()
             description = request.form.get('description','').strip()
+            url=request.form.get('b_url','').strip()
 
             #Validation for the Form
             # 1️⃣ Check if any field is empty
@@ -485,7 +500,8 @@ def brand_add(methods):
             brands = {
                   'name':brand_name,
                   'status': status,
-                  'description':description
+                  'description':description,
+                  'b_url':url
             }
             
             inserted = model_brands_create(brands)
@@ -517,22 +533,24 @@ def brand_edit(methods,brand_id):
             print(request.form.to_dict())
             brand_name = request.form.get('name','').strip()
             status = request.form.get('status','').strip()
+            url=request.form.get('b_url','').strip()
             description = request.form.get('description','').strip()
             brand = model_get_brand_details(brand_id)
             print(brand)
             #Validation for the Form
             # 1️⃣ Check if any field is empty
-            if not brand_name or not status or not description:
+            if not brand_name or not status or not url:
                   flash("All fields are required!", "danger")
                   return render_template('admin/brands/edit.html',brand=brand)
 
-            brands = {
+            brand = {
                      'name':brand_name,
                      'status':status,
-                     'description':description
+                     'description':description,
+                     'b_url':url
               }
             
-            updated = model_update_brand_details(brand_id=brand_id,brands=brands)
+            updated = model_update_brand_details(brand_id=brand_id,brand=brand)
             if updated == True:
                      flash('brand updated successfully','success')
                      return redirect(url_for('admin.admin_brand_listing'))
@@ -542,3 +560,256 @@ def brand_edit(methods,brand_id):
       else: 
              brand = model_get_brand_details(brand_id)
              return render_template('admin/brands/edit.html',brand=brand)
+
+
+# Mcats
+
+def mcat_add(methods):
+        if methods == 'POST':
+            mcat_name = request.form.get('name','').strip()
+            status = request.form.get('status','').strip()
+            description = request.form.get('description','').strip()
+            # parent_id=request.form.get('parent_id').strip()
+            brand=request.form.get('brand').strip()
+
+            #Validation for the Form
+            # 1️⃣ Check if any field is empty
+            if not mcat_name or not status or not brand:
+                  flash("All fields are required!", "danger")
+                  return render_template('admin/mcats/add.html')
+
+            mcat = {
+                  'name':mcat_name,
+                  'status': status,
+                  'description':description,
+                  # 'parent_id':parent_id,
+                  'brand': brand
+            }
+            
+            inserted = model_mcat_create(mcat)
+            print("inserted")
+            if inserted == True:
+                     flash('mcat created successfully','success')
+                     return redirect(url_for('admin.admin_mcat_listing'))
+            else:     
+                     flash('cannot created the Record','danger')
+                     return redirect(url_for('admin.admin_mcat_listing')) 
+              
+              
+        else:    
+                return render_template('admin/mcats/add.html')
+        
+def mcat_listing():
+      mcats = model_get_mcat_list()
+      return render_template('admin/mcats/show.html',mcats=mcats)
+
+def mcat_edit(methods,mcat_id):
+      if methods == 'POST':
+            print(request.form.to_dict())
+            mcat_name = request.form.get('name','').strip()
+            status = request.form.get('status','').strip()
+            description = request.form.get('description','').strip()
+            brand=request.form.get('brand').strip()
+            mcat = model_get_mcat_details(mcat_id)
+            print(mcat)
+            #Validation for the Form
+            # 1️⃣ Check if any field is empty
+            if not mcat_name or not status or not brand:
+                  flash("All fields are required!", "danger")
+                  return render_template('admin/mcats/edit.html',mcat=mcat)
+
+            mcats = {
+                     'name':mcat_name,
+                     'status':status,
+                     'description':description,
+                     'brand':brand
+              }
+            
+            updated = model_update_mcat_details(mcat_id=mcat_id,mcats=mcats)
+            if updated == True:
+                     flash('brand updated successfully','success')
+                     return redirect(url_for('admin.admin_mcat_listing'))
+            else:     
+                     flash('cannot updated the Record','danger')
+                     return redirect(url_for('admin.admin_mcat_listing')) 
+      else: 
+             mcat = model_get_mcat_details(mcat_id)
+             return render_template('admin/mcats/edit.html',mcat=mcat)
+      
+def mcat_delete(mcat_id):
+            if model_brand_delete(mcat_id) == True:
+                   flash('Brand Deleted Successfully','success')
+                   return redirect(url_for('admin.admin_mcat_listing'))  
+            else:
+                   flash('Brand Not Deleted Succssfully','danger')
+                   return redirect(url_for('admin.admin_mcat_listing'))
+            
+
+# market
+def market_add(methods):
+        if methods == 'POST':
+            market_name = request.form.get('mkt_name','').strip()
+            # status = request.form.get('status','').strip()
+            url = request.form.get('url','').strip()
+            # parent_id=request.form.get('parent_id').strip()
+            # brand=request.form.get('brand').strip()
+
+            #Validation for the Form
+            # 1️⃣ Check if any field is empty
+            if not market_name or not url:
+                  flash("All fields are required!", "danger")
+                  return render_template('admin/market/add.html')
+
+            market = {
+                  'mkt_name':market_name,
+                  # 'status': status,
+                  # 'description':description,
+                  # 'parent_id':parent_id,
+                  # 'brand': brand
+                  'url':url
+            }
+            
+            inserted = model_market_create(market)
+            print("inserted")
+            if inserted == True:
+                     flash('market created successfully','success')
+                     return redirect(url_for('admin.admin_market_listing'))
+            else:     
+                     flash('cannot created the Record','danger')
+                     return redirect(url_for('admin.admin_market_listing')) 
+              
+              
+        else:    
+                return render_template('admin/market/add.html')
+        
+def market_listing():
+      markets = model_get_market_list()
+      return render_template('admin/market/show.html',markets=markets)
+
+def market_edit(methods,market_id):
+      if methods == 'POST':
+            print(request.form.to_dict())
+            market_name = request.form.get('mkt_name','').strip()
+            # status = request.form.get('status','').strip()
+            # description = request.form.get('description','').strip()
+            # brand=request.form.get('brand').strip()
+            url=request.form.get('url').strip()
+            market = model_get_market_details(market_id)
+            print(market)
+            #Validation for the Form
+            # 1️⃣ Check if any field is empty
+            if not market_name or not url:
+                  flash("All fields are required!", "danger")
+                  return render_template('admin/market/edit.html',market=market)
+
+            market = {
+                     'mkt_name':market_name,
+                     'url':url
+              }
+            
+            updated = model_update_market_details(market_id=market_id,market=market)
+            if updated == True:
+                     flash('brand updated successfully','success')
+                     return redirect(url_for('admin.admin_market_listing'))
+            else:     
+                     flash('cannot updated the Record','danger')
+                     return redirect(url_for('admin.admin_market_listing')) 
+      else: 
+             market = model_get_market_details(market_id)
+             return render_template('admin/market/edit.html',market=market)
+      
+def market_delete(market_id):
+            if model_market_delete(market_id) == True:
+                   flash('market Deleted Successfully','success')
+                   return redirect(url_for('admin.admin_market_listing'))  
+            else:
+                   flash('market Not Deleted Succssfully','danger')
+                   return redirect(url_for('admin.admin_market_listing'))
+            
+
+
+# ----------------------Products--------------------------------
+def product_add(methods):
+    if methods == 'POST':
+        name = request.form.get('name', '').strip()
+        brand = request.form.get('brand', '').strip()
+        model = request.form.get('model', '').strip()
+        category = request.form.get('category', '').strip()
+        img_url = request.form.get('img_url', '').strip()
+        description = request.form.get('description', '').strip()
+
+        # Validation for the form
+        if not name or not brand or not model or not category:
+            flash("All required fields must be filled!", "danger")
+            return render_template('admin/product/add.html')
+
+        product = {
+            'name': name,
+            'brand': brand,
+            'model': model,
+            'category': category,
+            'img_url': img_url,
+            'description': description
+        }
+
+        inserted = model_product_create(product)
+        if inserted:
+            flash('Product created successfully', 'success')
+            return redirect(url_for('admin.admin_product_listing'))
+        else:
+            flash('Could not create the product', 'danger')
+            return redirect(url_for('admin.admin_product_listing'))
+
+    else:
+        return render_template('admin/product/add.html')
+
+
+def product_listing():
+    products = model_get_product_list()
+    return render_template('admin/product/show.html', products=products)
+
+
+def product_edit(methods, product_id):
+    if methods == 'POST':
+        name = request.form.get('name', '').strip()
+        brand = request.form.get('brand', '').strip()
+        model = request.form.get('model', '').strip()
+        category = request.form.get('category', '').strip()
+        img_url = request.form.get('img_url', '').strip()
+        description = request.form.get('description', '').strip()
+
+        product = model_get_product_details(product_id)
+
+        # Validation for the form
+        if not name or not brand or not model or not category:
+            flash("All required fields must be filled!", "danger")
+            return render_template('admin/product/edit.html', product=product)
+
+        product = {
+            'name': name,
+            'brand': brand,
+            'model': model,
+            'category': category,
+            'img_url': img_url,
+            'description': description
+        }
+
+        updated = model_update_product_details(product_id=product_id, product=product)
+        if updated:
+            flash('Product updated successfully', 'success')
+            return redirect(url_for('admin.admin_product_listing'))
+        else:
+            flash('Could not update the product', 'danger')
+            return redirect(url_for('admin.admin_product_listing'))
+    else:
+        product = model_get_product_details(product_id)
+        return render_template('admin/product/edit.html', product=product)
+
+
+def product_delete(product_id):
+    if model_product_delete(product_id):
+        flash('Product deleted successfully', 'success')
+    else:
+        flash('Could not delete the product', 'danger')
+
+    return redirect(url_for('admin.admin_product_listing'))

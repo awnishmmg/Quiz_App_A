@@ -41,32 +41,59 @@ def initialise_db():
                 CREATE TABLE IF NOT EXISTS product (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
+                brand TEXT NOT NULL,
                 model TEXT NOT NULL,
-                brand_id INTEGER NOT NULL
+                category  TEXT NOT NULL,
+                img_url   TEXT NULLABLE,
+                desription TEXT NULLABLE
                 )
             ''')
 
+        # conn.execute('''
+        # DROP TABLE product
+        #              ''')
+
         #create Mcat
         conn.execute('''
-                CREATE TABLE IF NOT EXISTS mcats (
+                CREATE TABLE IF NOT EXISTS mcat (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 brand TEXT NOT NULL,
                 status INTEGER NOT NULL,
-                parent_id INTEGER NOT NULL,
                 description TEXT NULLABLE
                 )
             ''')
+        # conn.execute('''
+        # DROP TABLE mcats
+        #              ''')
         
         #create Brand
         conn.execute('''
                 CREATE TABLE IF NOT EXISTS brand (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
+                b_url  TEXT NOT NULL,
                 status INTEGER NOT NULL,
                 description TEXT NULLABLE
                      )
             ''')
+        
+        # conn.execute('''
+        #     DROP TABLE brand
+        #                  ''')
+
+        # marketplace vertical
+        conn.execute('''
+                CREATE TABLE IF NOT EXISTS MARKET(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    mkt_name TEXT NOT NULL,
+                    url TEXT NOT NULL 
+                )
+                     ''')
+        
+        # conn.execute('''
+        # DROP TABLE MARKET
+        #              ''')
         
 
 
@@ -746,41 +773,129 @@ def model_get_all_user_results():
     return results
 
 
-def model_brands_create(brands):
-    conn=getConnection()
-    cursor=conn.cursor()
+
+
+# Brands
+def model_brands_create(brand):
+    conn = getConnection()
+    cursor = conn.cursor()
 
     cursor.execute('''
-                   INSERT INTO brand (name,status, description) values(?,?,?)
-                   ''',(brands['name'],brands['status'],brands['description']))
+        INSERT INTO brand (name, b_url, status, description) 
+        VALUES (?, ?, ?, ?)
+    ''', (brand['name'], brand['b_url'], brand['status'], brand.get('description', None)))
     
     try:
         conn.commit()
     except Exception as e:
-        print(f'Exception Error {str(e)}')
+        print(f'Error: {str(e)}')
+        return False
+    finally:
+        conn.close()
+    
+    return True
+
+
+def model_get_brand_list():
+    conn = getConnection()
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM brand')
+    brands = cursor.fetchall()
+    
+    conn.close()
+    return brands
+
+
+def model_brand_delete(brand_id):
+    conn = getConnection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("DELETE FROM brand WHERE id = ?", (brand_id,))
+        conn.commit()
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return False
+    finally:
+        conn.close()
+    
+    return True
+
+
+def model_get_brand_details(brand_id):
+    conn = getConnection()
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM brand WHERE id = ?', (brand_id,))
+    brand = cursor.fetchone()
+    
+    conn.close()
+    return brand
+
+
+def model_update_brand_details(brand_id, brand):
+    conn = getConnection()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        UPDATE brand 
+        SET name = ?, b_url = ?, status = ?, description = ? 
+        WHERE id = ?
+    ''', (brand['name'], brand['b_url'], brand['status'], brand['description'], brand_id))
+    
+    try:
+        conn.commit()
+    except Exception as e:
+        print(f'Error: {str(e)}')
+        return False
+    finally:
+        conn.close()
+    
+    return True
+
+    
+
+# Mcat
+
+# name TEXT NOT NULL,
+#                 brand TEXT NOT NULL,
+#                 status INTEGER NOT NULL,
+#                 description TEXT NULLABLE
+def model_mcat_create(mcat):
+    conn=getConnection()
+    cursor=conn.cursor()
+
+    cursor.execute('''
+        INSERT into mcat (name,brand,status,description) values( ?,?,?,?) 
+                   ''',(mcat['name'],mcat['brand'],mcat['status'],mcat['description']))
+    
+    try:
+        conn.commit()
+    except Exception as e:
+        print(f'Excpetion err {str(e)}')
         return False
     finally:
         conn.close()
         return True
     
-def model_get_brand_list():
+def model_get_mcat_list():
     conn=getConnection()
     cursor=conn.cursor()
 
     cursor.execute('''
-        select * from brand
-    ''')
+            Select * from mcat      
+            ''')
+    mcats=cursor.fetchall()
+    return mcats
 
-    brands=cursor.fetchall()
-    return brands
-
-def model_brand_delete(brand_id):
+def model_mcat_delete(mcat_id):
     conn=getConnection()
     cursor=conn.cursor()
 
     try:
         #connection cursor
-        cursor.execute("Delete from brand where id=?",(brand_id,))
+        cursor.execute("Delete from mcat where id=?",(mcat_id,))
         conn.commit()
     except Exception as e:
         print(f"Error: {str(e)}")
@@ -789,24 +904,22 @@ def model_brand_delete(brand_id):
         conn.close()
         return True
     
-def model_get_brand_details(brand_id):
+def model_get_mcat_details(mcat_id):
     conn = getConnection()
     cursor = conn.cursor()
     cursor.execute('''
-                   select * from brand where id=?
-                   ''',(brand_id,))
+                   select * from mcat where id=?
+                   ''',(mcat_id,))
     
-    brand = cursor.fetchone()
-    return brand
-
-
-def model_update_brand_details(brand_id,brands):
+    mcat = cursor.fetchone()
+    return mcat
+def model_update_mcat_details(mcat_id,mcats):
     conn=getConnection()
     cursor=conn.cursor()
 
     cursor.execute('''
-                   update brand set name=?,status=?, description=? where id=?
-                   ''',(brands['name'],brands['status'],brands['description'],brand_id))
+                   update mcat set name=?,status=?, description=?, brand=? where id=?
+                   ''',(mcats['name'],mcats['status'],mcats['description'],mcats['brand'],mcat_id))
     
     try:
         conn.commit()
@@ -816,3 +929,267 @@ def model_update_brand_details(brand_id,brands):
     finally:
         conn.close()
         return True
+    
+#------------------------------ market ----------------------
+
+# name 
+# url
+def model_market_create(market):
+    conn=getConnection()
+    cursor=conn.cursor()
+
+    cursor.execute('''
+        INSERT into market (mkt_name,url) values( ?,?) 
+                   ''',(market['mkt_name'],market['url']))
+    
+    try:
+        conn.commit()
+    except Exception as e:
+        print(f'Excpetion err {str(e)}')
+        return False
+    finally:
+        conn.close()
+        return True
+    
+def model_get_market_list():
+    conn=getConnection()
+    cursor=conn.cursor()
+
+    cursor.execute('''
+            Select * from market      
+            ''')
+    market=cursor.fetchall()
+    return market
+
+def model_market_delete(market_id):
+    conn=getConnection()
+    cursor=conn.cursor()
+
+    try:
+        #connection cursor
+        cursor.execute("Delete from market where id=?",(market_id,))
+        conn.commit()
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return False
+    finally:
+        conn.close()
+        return True
+    
+def model_get_market_details(market_id):
+    conn = getConnection()
+    cursor = conn.cursor()
+    cursor.execute('''
+                   select * from market where id=?
+                   ''',(market_id,))
+    
+    mcat = cursor.fetchone()
+    return mcat
+def model_update_market_details(market_id,market):
+    conn=getConnection()
+    cursor=conn.cursor()
+
+    cursor.execute('''
+                   update market set mkt_name=?,url=?, brand=? where id=?
+                   ''',(market['mkt_name'],market['url'],market_id))
+    
+    try:
+        conn.commit()
+    except Exception as e:
+        print(f'Exception Error {str(e)}')
+        return False
+    finally:
+        conn.close()
+        return True
+    
+def model_market_create(market):
+    conn=getConnection()
+    cursor=conn.cursor()
+
+    cursor.execute('''
+        INSERT into market (mkt_name,url) values( ?,?) 
+                   ''',(market['mkt_name'],market['url']))
+    
+    try:
+        conn.commit()
+    except Exception as e:
+        print(f'Excpetion err {str(e)}')
+        return False
+    finally:
+        conn.close()
+        return True
+    
+def model_get_market_list():
+    conn=getConnection()
+    cursor=conn.cursor()
+
+    cursor.execute('''
+            Select * from market    
+            ''')
+    markets=cursor.fetchall()
+    return markets
+
+def model_market_delete(market_id):
+    conn=getConnection()
+    cursor=conn.cursor()
+
+    try:
+        #connection cursor
+        cursor.execute("Delete from market where id=?",(market_id,))
+        conn.commit()
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return False
+    finally:
+        conn.close()
+        return True
+    
+def model_get_market_details(market_id):
+    conn = getConnection()
+    cursor = conn.cursor()
+    cursor.execute('''
+                   select * from market where id=?
+                   ''',(market_id,))
+    
+    market = cursor.fetchone()
+    return market
+def model_update_market_details(market_id,market):
+    conn=getConnection()
+    cursor=conn.cursor()
+
+    cursor.execute('''
+                   update market set mkt_name=?,url=? where id=?
+                   ''',(market['mkt_name'],market['url'],market_id))
+    
+    try:
+        conn.commit()
+    except Exception as e:
+        print(f'Exception Error {str(e)}')
+        return False
+    finally:
+        conn.close()
+        return True
+    
+
+
+
+#----------products-----------------------------
+def model_product_create(product):
+    conn = getConnection()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        INSERT INTO product (name, brand, model, category, img_url, desription) 
+        VALUES (?, ?, ?, ?, ?, ?) 
+    ''', (product['name'], product['brand'], product['model'], product['category'], product.get('img_url', ''), product.get('description', '')))
+
+    try:
+        conn.commit()
+    except Exception as e:
+        print(f'Exception error: {str(e)}')
+        return False
+    finally:
+        conn.close()
+    return True
+
+
+def model_get_product_list():
+    conn = getConnection()
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM product')
+    products = cursor.fetchall()
+    
+    conn.close()
+    return products
+
+
+def model_product_delete(product_id):
+    conn = getConnection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("DELETE FROM product WHERE id=?", (product_id,))
+        conn.commit()
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return False
+    finally:
+        conn.close()
+    return True
+
+
+def model_get_product_details(product_id):
+    conn = getConnection()
+    cursor = conn.cursor()
+    
+    cursor.execute('SELECT * FROM product WHERE id=?', (product_id,))
+    products = cursor.fetchone()
+    
+    conn.close()
+    return products
+
+
+def model_update_product_details(product_id, product):
+    conn = getConnection()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        UPDATE product 
+        SET name=?, brand=?, model=?, category=?, img_url=?, desription=? 
+        WHERE id=?
+    ''', (product['name'], product['brand'], product['model'], product['category'], product.get('img_url', ''), product.get('description', ''), product_id))
+
+    try:
+        conn.commit()
+    except Exception as e:
+        print(f'Exception error: {str(e)}')
+        return False
+    finally:
+        conn.close()
+    return True
+
+
+
+
+def model_product_count():
+    conn=getConnection()
+    cursor=conn.cursor()
+
+    cursor.execute('''
+        select count(1) from product
+                   ''')
+    count=cursor.fetchone()[0]
+    conn.close()
+    return count
+
+def model_brand_count():
+    conn=getConnection()
+    cursor=conn.cursor()
+
+    cursor.execute('''
+        select count(*) from brand
+                   ''')
+    count=cursor.fetchone()[0]
+    conn.close()
+    return count
+def model_mcat_count():
+    conn=getConnection()
+    cursor=conn.cursor()
+
+    cursor.execute('''
+        select count(1) from mcat
+                   ''')
+    count=cursor.fetchone()[0]
+    conn.close()
+    return count
+def model_market_vertical_count():
+    conn=getConnection()
+    cursor=conn.cursor()
+
+    cursor.execute('''
+        select count(1) from market
+                   ''')
+    count=cursor.fetchone()[0]
+    conn.close()
+    return count

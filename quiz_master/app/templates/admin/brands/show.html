@@ -21,14 +21,14 @@
 
     <!-- Filter & Search -->
     <div class="row my-3">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <select id="statusFilter" class="form-select" onchange="filterBrands()">
                 <option value="">All Status</option>
                 <option value="1">Active</option>
                 <option value="0">Inactive</option>
             </select>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-8">
             <input type="text" id="searchBox" class="form-control" placeholder="Search brands..." onkeyup="searchBrands()">
         </div>
     </div>
@@ -39,6 +39,7 @@
             <tr>
                 <th>ID</th>
                 <th>Brand Name</th>
+                <th>Brand URL</th>
                 <th>Description</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -49,6 +50,7 @@
             <tr>
                 <td>{{ brand.id }}</td>
                 <td>{{ brand.name }}</td>
+                <td><a href="{{ brand.b_url }}" target="_blank">{{ brand.b_url }}</a></td>
                 <td>{{ brand.description }}</td>
                 <td data-status="{{ brand.status }}">
                     {{ "Active" if brand.status == 1 else "Inactive" }}
@@ -78,7 +80,7 @@
         let rows = document.querySelectorAll("tbody tr");
 
         rows.forEach(row => {
-            let status = row.cells[3].getAttribute("data-status");
+            let status = row.cells[4].getAttribute("data-status");
             row.style.display = (selectedStatus === "" || status === selectedStatus) ? "" : "none";
         });
     }

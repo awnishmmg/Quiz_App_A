@@ -26,6 +26,10 @@
                             <input type="text" class="form-control" id="name" name="name" required value="{{ brand.name }}">
                         </div>
                         <div class="mb-3">
+                            <label for="b_url" class="form-label">Brand URL</label>
+                            <input type="url" class="form-control" id="b_url" name="b_url" required value="{{ brand.b_url }}">
+                        </div>
+                        <div class="mb-3">
                             <label for="description" class="form-label">Description</label>
                             <textarea class="form-control" id="description" name="description">{{ brand.description }}</textarea>
                         </div>

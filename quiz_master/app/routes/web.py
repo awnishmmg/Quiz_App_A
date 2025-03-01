@@ -235,7 +235,7 @@ def user_logout():
 
 # --------------------------------Brand routes --------------------------------
 @admin_bp.route('/brands/create/form',methods=['GET','POST'])
-@auth.login_required
+# @auth.login_required
 def admin_create_brand_form():
      if request.method == 'POST':
          return admin_controller.brand_add(methods='POST')     
@@ -243,12 +243,12 @@ def admin_create_brand_form():
           return admin_controller.brand_add(methods='GET')
      
 @admin_bp.route('/brand/show',methods=['GET'])
-@auth.login_required
+# @auth.login_required
 def admin_brand_listing():
           return admin_controller.brand_listing()
 
 @admin_bp.route('/brand/edit/<int:brand_id>',methods=['GET','POST'])
-@auth.login_required
+# @auth.login_required
 def admin_brand_edit(brand_id):
      if request.method == 'POST':
           return admin_controller.brand_edit(methods='POST',brand_id=brand_id)
@@ -257,6 +257,83 @@ def admin_brand_edit(brand_id):
 
 
 @admin_bp.route('/brand/delete/<int:brand_id>',methods=['GET'])
-@auth.login_required
+# @auth.login_required
 def admin_brand_delete(brand_id):
      return admin_controller.brand_delete(brand_id)
+
+
+
+
+# mcat
+@admin_bp.route('/mcats/create/form',methods=['GET','POST'])
+def admin_create_mcat_form():
+     if request.method == 'POST':
+         return admin_controller.mcat_add(methods='POST')     
+     else:
+          return admin_controller.mcat_add(methods='GET')
+     
+@admin_bp.route('/mcats/show',methods=['GET'])
+def admin_mcat_listing():
+     return admin_controller.mcat_listing()
+
+
+@admin_bp.route('/mcats/edit/<int:mcat_id>',methods=['GET','POST'])
+def admin_mcat_edit(mcat_id):
+     if request.method=='POST':
+          return admin_controller.mcat_edit(methods='POST',mcat_id=mcat_id)
+     else:
+          return admin_controller.mcat_edit(methods='GET',mcat_id=mcat_id)
+
+@admin_bp.route('/mcat/delete/<int:mcat_id>',methods=['GET'])
+def admin_mcat_delete(mcat_id):
+     return admin_controller.mcat_delete(mcat_id)
+
+
+# marketplace
+
+@admin_bp.route('/market/create/form',methods=['GET','POST'])
+def admin_create_market_form():
+     if request.method == 'POST':
+         return admin_controller.market_add(methods='POST')     
+     else:
+          return admin_controller.market_add(methods='GET')
+     
+@admin_bp.route('/market/show',methods=['GET'])
+def admin_market_listing():
+     return admin_controller.market_listing()
+
+
+@admin_bp.route('/market/edit/<int:market_id>',methods=['GET','POST'])
+def admin_market_edit(market_id):
+     if request.method=='POST':
+          return admin_controller.market_edit(methods='POST',market_id=market_id)
+     else:
+          return admin_controller.market_edit(methods='GET',market_id=market_id)
+
+@admin_bp.route('/market/delete/<int:market_id>',methods=['GET'])
+def admin_market_delete(market_id):
+     return admin_controller.market_delete(market_id)
+
+# ---------Products------------
+
+@admin_bp.route('/product/create/form', methods=['GET', 'POST'])
+def admin_create_product_form():
+    if request.method == 'POST':
+        return admin_controller.product_add(methods='POST')     
+    else:
+        return admin_controller.product_add(methods='GET')
+     
+@admin_bp.route('/product/show', methods=['GET'])
+def admin_product_listing():
+    return admin_controller.product_listing()
+
+@admin_bp.route('/product/edit/<int:product_id>', methods=['GET', 'POST'])
+def admin_product_edit(product_id):
+    if request.method == 'POST':
+        return admin_controller.product_edit(methods='POST', product_id=product_id)
+    else:
+        return admin_controller.product_edit(methods='GET', product_id=product_id)
+
+@admin_bp.route('/product/delete/<int:product_id>', methods=['GET'])
+def admin_product_delete(product_id):
+    return admin_controller.product_delete(product_id)

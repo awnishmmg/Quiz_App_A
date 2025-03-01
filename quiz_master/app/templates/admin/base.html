@@ -34,10 +34,10 @@
                         href="{{url_for('admin.admin_dashboard')}}">Dashboard</a></li>
 
                     <li class="nav-item border_bottom"><a class="nav-link text-white" href="{{url_for('admin.admin_create_user_listing')}}">Manage Users</a></li>
-                    <li class="nav-item border_bottom"><a class="nav-link text-white" href="{{url_for('admin.admin_brand_listing')}}">Manage Brands</a></li> 
-                    <li class="nav-item border_bottom"><a class="nav-link text-white" href="{{url_for('admin.admin_brand_listing')}}">Manage Mcats</a></li>    
-                    <li class="nav-item border_bottom"><a class="nav-link text-white" href="{{url_for('admin.admin_brand_listing')}}">Manage Products</a></li> 
-
+                    <li class="nav-item border_bottom"><a class="nav-link text-white" href="{{url_for('admin.admin_brand_listing')}}">Manage Brands</a></li>
+                    <li class="nav-item border_bottom"><a class="nav-link text-white" href="{{url_for('admin.admin_product_listing')}}">Manage Products</a></li>  
+                    <li class="nav-item border_bottom"><a class="nav-link text-white" href="{{url_for('admin.admin_mcat_listing')}}">Manage Mcats</a></li>    
+                    <li class="nav-item border_bottom"><a class="nav-link text-white" href="{{url_for('admin.admin_market_listing')}}">Manage MarketplaceVerticals</a></li> 
                     <li class="nav-item border_bottom">
                         <a class="nav-link text-danger" href="{{url_for('admin.admin_logout')}}">Logout <br/>
                             {% if 'admin_email' in session %}
@@ -64,7 +64,7 @@
                     {% block content %}{% endblock %}
                 </main>
                 <footer class="text-center py-3">
-                    <p>&copy; 2025 Quiz Mock Application. All Rights Reserved.</p>
+                    <p>&copy; 2025 Product-Brand validation Application. All Rights Reserved.</p>
                 </footer>
             </div>
         </div>
